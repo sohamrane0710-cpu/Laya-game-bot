@@ -84,9 +84,8 @@ def main():
 
             # 1. Normalize the actual game state.
             state = state_adapter.transform(raw_state)
-            state["relevant_experiences"] = (
-            experience_store.retrieve(state, limit=3)
-            )
+            # Temporarily disable stale experiences while debugging decisions.
+            state["relevant_experiences"] = []
 
             # 2. Ask Laya to select an action.
             started = perf_counter()
@@ -151,7 +150,41 @@ def main():
                         proposed_action
                     )
                 )
+'''
+            # Target-alignment override: keep Laya's proposal,
+            # but correct obvious horizontal aiming errors.
+            decision_source = "laya"
 
+            visible_enemies = state.get("visible_enemies", [])
+
+            if valid and visible_enemies:
+                target = visible_enemies[0]
+                offset = target.get("horizontal_offset_from_center")
+
+                if offset is not None:
+                    offset = float(offset)
+
+                    # Target is significantly left of screen center.
+                    if offset < -40:
+                        executed_action = "left_attack"
+                        decision_source = "target_alignment_rule"
+
+                    # Target is significantly right of screen center.
+                    elif offset > 40:
+                        executed_action = "right_attack"
+                        decision_source = "target_alignment_rule"
+
+                    # If approximately aligned, don't waste a step waiting.
+                    elif proposed_action == "wait":
+                        executed_action = "attack"
+                        decision_source = "target_alignment_rule"
+
+            print(
+                f"Decision: Laya={proposed_action!r}, "
+                f"executed={executed_action!r}, "
+                f"source={decision_source}"
+            )
+'''
             # 4. Execute the action.
             try:
                 reward = game.execute(executed_action)
