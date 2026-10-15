@@ -29,6 +29,10 @@ class DoomGameClient:
         self.game.set_screen_format(vzd.ScreenFormat.RGB24)
         self.game.set_window_visible(visible)
 
+        # Debugging: expose labels and object information.
+        self.game.set_labels_buffer_enabled(True)
+        self.game.set_objects_info_enabled(True)
+
         # The order here must match the Boolean action lists
         # used in execute().
         self.game.set_available_buttons([

@@ -86,20 +86,26 @@ def main():
             state = state_adapter.transform(raw_state)
             state["relevant_experiences"] = (
             experience_store.retrieve(state, limit=3)
-)
+            )
 
             # 2. Ask Laya to select an action.
             started = perf_counter()
 
             try:
+                questions = build_questions(state)
+
+                print("\n" + "=" * 50)
+                print("CURRENT GAME STATE:", state)
+                print("QUESTIONS SENT TO LAYA:", questions)
+
                 result = router.predict(
                     state,
-                    build_questions(state),
+                    questions,
                 )
 
-                inference_seconds = (
-                    perf_counter() - started
-                )
+                inference_seconds = perf_counter() - started
+
+                print("RAW LAYA RESPONSE:", result)
 
             except Exception as exc:
                 should_continue = error_handler.recover(
