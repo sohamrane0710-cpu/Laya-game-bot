@@ -150,7 +150,7 @@ def main():
                         proposed_action
                     )
                 )
-'''
+
             # Target-alignment override: keep Laya's proposal,
             # but correct obvious horizontal aiming errors.
             decision_source = "laya"
@@ -184,7 +184,7 @@ def main():
                 f"executed={executed_action!r}, "
                 f"source={decision_source}"
             )
-'''
+
             # 4. Execute the action.
             try:
                 reward = game.execute(executed_action)
@@ -215,6 +215,7 @@ def main():
 
             # 6. Record the transition.
             logger.record({
+                "decision_source": decision_source,
                 "event": "transition",
                 "episode": 1,
                 "step": step,
